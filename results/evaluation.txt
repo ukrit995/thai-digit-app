@@ -1,0 +1,117 @@
+=== Thai Digit Recognition (๗๑-๗๕) — Evaluation Results ===
+
+Dataset
+-------
+Total samples : 250
+Train samples : 200
+Test  samples : 50
+Classes       : ๗๑, ๗๒, ๗๓, ๗๔, ๗๕
+
+Model Comparison (Test Set)
+---------------------------
+Model                  Accuracy  Precision     Recall         F1
+--------------------------------------------------------------
+SVM                      78.00%     78.11%     78.00%     77.84%
+Random Forest            78.00%     80.40%     78.00%     77.44%
+KNN                      70.00%     72.67%     70.00%     68.88%
+
+Best Model: SVM — SVM (RBF Kernel) + StandardScaler
+
+============================================================
+[SVM] — SVM (RBF Kernel) + StandardScaler
+============================================================
+Accuracy  : 78.00%
+Precision : 78.11%
+Recall    : 78.00%
+F1-Score  : 77.84%
+
+Cross-Validation (5-Fold)
+  Mean : 79.60%
+  Std  : 6.86%
+  Folds: ['82.0%', '86.0%', '76.0%', '86.0%', '68.0%']
+
+Classification Report:
+              precision    recall  f1-score   support
+
+          ๗๑       0.80      0.80      0.80        10
+          ๗๒       0.75      0.90      0.82        10
+          ๗๓       0.78      0.70      0.74        10
+          ๗๔       0.78      0.70      0.74        10
+          ๗๕       0.80      0.80      0.80        10
+
+    accuracy                           0.78        50
+   macro avg       0.78      0.78      0.78        50
+weighted avg       0.78      0.78      0.78        50
+
+Error Analysis:
+  จริง=๗๕ → ทำนาย=๗๔: 2 ครั้ง
+  จริง=๗๓ → ทำนาย=๗๒: 2 ครั้ง
+  จริง=๗๔ → ทำนาย=๗๕: 2 ครั้ง
+  จริง=๗๒ → ทำนาย=๗๑: 1 ครั้ง
+  จริง=๗๑ → ทำนาย=๗๓: 1 ครั้ง
+
+============================================================
+[Random Forest] — Random Forest (200 trees)
+============================================================
+Accuracy  : 78.00%
+Precision : 80.40%
+Recall    : 78.00%
+F1-Score  : 77.44%
+
+Cross-Validation (5-Fold)
+  Mean : 81.60%
+  Std  : 5.43%
+  Folds: ['88.0%', '84.0%', '80.0%', '84.0%', '72.0%']
+
+Classification Report:
+              precision    recall  f1-score   support
+
+          ๗๑       0.67      1.00      0.80        10
+          ๗๒       0.89      0.80      0.84        10
+          ๗๓       0.86      0.60      0.71        10
+          ๗๔       0.86      0.60      0.71        10
+          ๗๕       0.75      0.90      0.82        10
+
+    accuracy                           0.78        50
+   macro avg       0.80      0.78      0.77        50
+weighted avg       0.80      0.78      0.77        50
+
+Error Analysis:
+  จริง=๗๔ → ทำนาย=๗๕: 3 ครั้ง
+  จริง=๗๓ → ทำนาย=๗๑: 3 ครั้ง
+  จริง=๗๒ → ทำนาย=๗๑: 2 ครั้ง
+  จริง=๗๕ → ทำนาย=๗๔: 1 ครั้ง
+  จริง=๗๔ → ทำนาย=๗๓: 1 ครั้ง
+
+============================================================
+[KNN] — KNN (k=5, distance-weighted) + StandardScaler
+============================================================
+Accuracy  : 70.00%
+Precision : 72.67%
+Recall    : 70.00%
+F1-Score  : 68.88%
+
+Cross-Validation (5-Fold)
+  Mean : 70.40%
+  Std  : 4.45%
+  Folds: ['70.0%', '78.0%', '70.0%', '70.0%', '64.0%']
+
+Classification Report:
+              precision    recall  f1-score   support
+
+          ๗๑       0.67      0.80      0.73        10
+          ๗๒       0.64      0.90      0.75        10
+          ๗๓       0.86      0.60      0.71        10
+          ๗๔       0.67      0.80      0.73        10
+          ๗๕       0.80      0.40      0.53        10
+
+    accuracy                           0.70        50
+   macro avg       0.73      0.70      0.69        50
+weighted avg       0.73      0.70      0.69        50
+
+Error Analysis:
+  จริง=๗๕ → ทำนาย=๗๔: 4 ครั้ง
+  จริง=๗๕ → ทำนาย=๗๒: 2 ครั้ง
+  จริง=๗๓ → ทำนาย=๗๒: 2 ครั้ง
+  จริง=๗๓ → ทำนาย=๗๑: 2 ครั้ง
+  จริง=๗๒ → ทำนาย=๗๑: 1 ครั้ง
