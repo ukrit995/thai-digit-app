@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — ระบบจำแนกเลขไทย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Noto+Serif+Thai:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1923;
+    --ink2: #1c2b3a;
+    --ink3: #253444;
+    --paper: #f0f4f8;
+    --paper-dark: #d8e1ea;
+    --gold: #c8963e;
+    --gold-light: #e8b96a;
+    --gold-dark: #9a6e28;
+    --blue: #2563eb;
+    --blue-soft: #dbeafe;
+    --green: #16a34a;
+    --green-soft: #dcfce7;
+    --red: #dc2626;
+    --red-soft: #fee2e2;
+    --amber: #d97706;
+    --amber-soft: #fef3c7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Sarabun', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink2) 100%);
+    padding: 0;
+  }
+
+  .header-band {
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-dark));
+    height: 3px;
+  }
+
+  .header-inner {
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  .admin-badge {
+    background: var(--gold-dark);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 3px 10px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  .header-title {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold-light);
+  }
+
+  .header-nav a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .header-nav a:hover { background: rgba(255,255,255,0.08); color: white; }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .page-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .page-heading h1 {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+    color: var(--ink);
+  }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--paper-dark);
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(15,25,35,0.07);
+  }
+
+  .card-head {
+    background: var(--ink2);
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-head-title {
+    font-family: 'Noto Serif Thai', serif;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .card-icon {
+    font-size: 1.1rem;
+  }
+
+  .card-body { padding: 24px 22px; }
+
+  /* Current Model Status */
+  .model-status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) { .model-status-grid { grid-template-columns: 1fr; } }
+
+  .stat-box {
+    background: var(--paper);
+    border: 1px solid var(--paper-dark);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #7a8fa0;
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    word-break: break-all;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .status-pill.active { background: var(--green-soft); color: var(--green); }
+  .status-pill.inactive { background: var(--red-soft); color: var(--red); }
+
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  /* Upload Zone */
+  .upload-zone {
+    border: 2px dashed var(--paper-dark);
+    border-radius: 8px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: var(--paper);
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--gold);
+    background: var(--amber-soft);
+  }
+
+  .upload-zone input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+  .upload-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .upload-sub { font-size: 0.82rem; color: #7a8fa0; }
+
+  .selected-file {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--blue-soft);
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 0.88rem;
+    color: #1e40af;
+  }
+
+  .selected-file.show { display: flex; }
+  .file-name { font-weight: 600; flex: 1; }
+  .file-size { color: #3b82f6; }
+
+  .btn-upload {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    background: var(--ink);
+    color: var(--gold-light);
+    border: 2px solid var(--gold-dark);
+    border-radius: 8px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 4px 4px 0 var(--gold-dark);
+  }
+
+  .btn-upload:hover:not(:disabled) {
+    background: #1c2b3a;
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 var(--gold-dark);
+  }
+
+  .btn-upload:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--gold-dark);
+  }
+
+  .btn-upload:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    display: none;
+    margin-top: 14px;
+  }
+
+  .progress-wrap.show { display: block; }
+
+  .progress-bar {
+    height: 8px;
+    background: var(--paper-dark);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    border-radius: 4px;
+    width: 0;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    font-size: 0.78rem;
+    color: #7a8fa0;
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  /* Alert */
+  .alert {
+    border-radius: 7px;
+    padding: 14px 16px;
+    font-size: 0.88rem;
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .alert.show { display: flex; }
+  .alert.success { background: var(--green-soft); color: #166534; border: 1px solid #86efac; }
+  .alert.error { background: var(--red-soft); color: #991b1b; border: 1px solid #fca5a5; }
+  .alert.warning { background: var(--amber-soft); color: #92400e; border: 1px solid #fcd34d; }
+
+  /* Dataset stats */
+  .dataset-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 560px) { .dataset-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .ds-item {
+    background: var(--paper);
+    border: 1px solid var(--paper-dark);
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+
+  .ds-thai {
+    font-family: 'Noto Serif Thai', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .ds-count {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold-dark);
+  }
+
+  .ds-unit { font-size: 0.72rem; color: #7a8fa0; }
+
+  .ds-bar {
+    height: 5px;
+    background: var(--paper-dark);
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .ds-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    border-radius: 3px;
+    transition: width 0.5s;
+  }
+
+  /* Upload History */
+  .upload-log {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .log-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--paper);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    border-left: 3px solid var(--green);
+  }
+
+  .log-item.current { border-left-color: var(--gold); }
+  .log-name { font-weight: 600; flex: 1; }
+  .log-time { color: #7a8fa0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-band"></div>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="admin-badge">Admin</div>
+      <div class="header-title">จัดการระบบจำแนกเลขไทย ๗๑–๗๕</div>
+    </div>
+    <nav class="header-nav">
+      <a href="/">← User Page</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="page-heading">
+    <h1>Model Management</h1>
+  </div>
+
+  <!-- Current Model Status -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon"></span>
+      <div class="card-head-title">สถานะโมเดลปัจจุบัน</div>
+    </div>
+    <div class="card-body">
+      <div class="model-status-grid">
+        <div class="stat-box">
+          <div class="stat-label">ชื่อโมเดล</div>
+          <div class="stat-value" id="currentModelName">
+            {% if model_info.loaded %}{{ model_info.name }}{% else %}ยังไม่มีโมเดล{% endif %}
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">สถานะ</div>
+          <div class="stat-value">
+            {% if model_info.loaded %}
+              <span class="status-pill active"><span class="status-dot"></span>พร้อมใช้งาน</span>
+            {% else %}
+              <span class="status-pill inactive" id="statusPill"><span class="status-dot"></span>ยังไม่โหลดโมเดล</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Model -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon"></span>
+      <div class="card-head-title">อัปโหลดโมเดลใหม่</div>
+    </div>
+    <div class="card-body">
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="modelFile" accept=".pkl" onchange="onFileSelect(this)">
+        <div class="upload-icon"></div>
+        <div class="upload-text">คลิกหรือลากไฟล์มาวางที่นี่</div>
+        <div class="upload-sub">รองรับเฉพาะไฟล์ .pkl (ขนาดสูงสุด 50 MB)</div>
+      </div>
+
+      <div class="selected-file" id="selectedFile">
+        <span></span>
+        <span class="file-name" id="fileName">—</span>
+        <span class="file-size" id="fileSize">—</span>
+        <span style="cursor:pointer; color:#dc2626;" onclick="clearFile()"></span>
+      </div>
+
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">กำลังอัปโหลด...</div>
+      </div>
+
+      <div class="alert" id="uploadAlert"></div>
+
+      <button class="btn-upload" id="uploadBtn" onclick="uploadModel()" disabled>
+        <span id="uploadBtnIcon">⬆</span>
+        <span id="uploadBtnText">เลือกไฟล์ก่อนอัปโหลด</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dataset Stats -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon"></span>
+      <div class="card-head-title">สถิติ Dataset (เลข ๗๑–๗๕)</div>
+    </div>
+    <div class="card-body">
+      <div class="dataset-grid" id="datasetGrid">
+        <div style="text-align:center; color:#7a8fa0; grid-column: 1/-1; padding: 20px;">
+          กำลังโหลดข้อมูล...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Collection Quick Link -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon"></span>
+      <div class="card-head-title">เก็บข้อมูล Dataset (Data Collection)</div>
+    </div>
+    <div class="card-body">
+      <p style="color:#4a5a6a; margin-bottom: 14px; font-size: 0.9rem;">
+        ใช้หน้านี้ในการวาดและบันทึกตัวอย่างเลขไทยเข้า dataset โดยตรง
+        ระบบจะบันทึกไฟล์แยกโฟลเดอร์ตามคลาส เช่น <code>dataset/71/71_001.png</code>
+      </p>
+      <div id="collectCanvas" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start;">
+        <div>
+          <label style="font-size:0.85rem; font-weight:600; display:block; margin-bottom:6px;">เลือกคลาส</label>
+          <select id="classSelect" style="padding: 8px 14px; border: 1px solid var(--paper-dark); border-radius:6px; font-family: 'Noto Serif Thai', serif; font-size: 1rem; background: var(--paper);">
+            <option value="71">๗๑</option>
+            <option value="72">๗๒</option>
+            <option value="73">๗๓</option>
+            <option value="74">๗๔</option>
+            <option value="75">๗๕</option>
+          </select>
+        </div>
+        <div style="flex:1; min-width: 240px;">
+          <label style="font-size:0.85rem; font-weight:600; display:block; margin-bottom:6px;">วาดตัวเลข</label>
+          <canvas id="collectCanvas2" width="240" height="240"
+            style="border: 2px solid var(--paper-dark); border-radius:6px; background:white; cursor:crosshair; display:block;"></canvas>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button onclick="saveSample()" style="flex:1; padding:9px; background: var(--green); color:white; border:none; border-radius:6px; font-family:'Sarabun',sans-serif; font-size:0.9rem; font-weight:700; cursor:pointer;"> Save Sample</button>
+            <button onclick="clearCollect()" style="padding:9px 14px; background:white; border:1px solid var(--paper-dark); border-radius:6px; cursor:pointer;">Clear</button>
+          </div>
+          <div id="collectMsg" style="font-size:0.82rem; color:var(--green); margin-top:6px; min-height:20px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── File select ─────────────────────────────────────────────────────────────
+let selectedFile = null;
+
+function onFileSelect(input) {
+  if (!input.files.length) return;
+  selectedFile = input.files[0];
+
+  const sf = document.getElementById('selectedFile');
+  sf.classList.add('show');
+  document.getElementById('fileName').textContent = selectedFile.name;
+  document.getElementById('fileSize').textContent = formatSize(selectedFile.size);
+
+  document.getElementById('uploadBtn').disabled = false;
+  document.getElementById('uploadBtnText').textContent = 'ยืนยันอัปโหลดโมเดล';
+
+  hideAlert();
+}
+
+function clearFile() {
+  selectedFile = null;
+  document.getElementById('modelFile').value = '';
+  document.getElementById('selectedFile').classList.remove('show');
+  document.getElementById('uploadBtn').disabled = true;
+  document.getElementById('uploadBtnText').textContent = 'เลือกไฟล์ก่อนอัปโหลด';
+  hideAlert();
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(2) + ' MB';
+}
+
+// Drag-drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.pkl')) {
+    selectedFile = f;
+    const dt = new DataTransfer();
+    dt.items.add(f);
+    document.getElementById('modelFile').files = dt.files;
+    onFileSelect(document.getElementById('modelFile'));
+  }
+});
+
+// ─── Upload ──────────────────────────────────────────────────────────────────
+async function uploadModel() {
+  if (!selectedFile) return;
+
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  document.getElementById('uploadBtnText').textContent = 'กำลังอัปโหลด...';
+  document.getElementById('uploadBtnIcon').textContent = '⏳';
+
+  const pw = document.getElementById('progressWrap');
+  pw.classList.add('show');
+  animateProgress();
+
+  const formData = new FormData();
+  formData.append('model', selectedFile);
+
+  try {
+    const res = await fetch('/upload-model', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressText').textContent = 'เสร็จสิ้น';
+
+    if (res.ok && data.success) {
+      showAlert(data.message, 'success');
+      document.getElementById('currentModelName').textContent = data.model_name;
+      // Update status pill
+      const pill = document.getElementById('statusPill');
+      if (pill) pill.innerHTML = '<span class="status-dot"></span>พร้อมใช้งาน';
+      if (pill) pill.className = 'status-pill active';
+      addToLog(data.model_name);
+    } else {
+      showAlert(data.error || 'เกิดข้อผิดพลาด', 'error');
+    }
+  } catch(e) {
+    showAlert('ไม่สามารถเชื่อมต่อ server ได้', 'error');
+  } finally {
+    btn.disabled = false;
+    document.getElementById('uploadBtnText').textContent = 'ยืนยันอัปโหลดโมเดล';
+    document.getElementById('uploadBtnIcon').textContent = '⬆';
+    setTimeout(() => pw.classList.remove('show'), 2000);
+  }
+}
+
+function animateProgress() {
+  let w = 0;
+  const fill = document.getElementById('progressFill');
+  const interval = setInterval(() => {
+    w = Math.min(w + 5, 90);
+    fill.style.width = w + '%';
+    if (w >= 90) clearInterval(interval);
+  }, 150);
+}
+
+function showAlert(msg, type) {
+  const el = document.getElementById('uploadAlert');
+  el.className = 'alert show ' + type;
+  el.innerHTML = (type==='success' ? ' ' : ' ') + msg;
+}
+function hideAlert() {
+  document.getElementById('uploadAlert').className = 'alert';
+}
+
+function addToLog(name) {
+  // Optional: could add upload history here
+}
+
+// ─── Dataset stats ───────────────────────────────────────────────────────────
+async function loadDatasetStats() {
+  try {
+    const res = await fetch('/dataset-stats');
+    const stats = await res.json();
+    const grid = document.getElementById('datasetGrid');
+    const maxVal = Math.max(...Object.values(stats), 30);
+    grid.innerHTML = '';
+    for (const [label, count] of Object.entries(stats)) {
+      const pct = Math.round((count / maxVal) * 100);
+      const div = document.createElement('div');
+      div.className = 'ds-item';
+      div.innerHTML = `
+        <div class="ds-thai">${label}</div>
+        <div class="ds-count">${count}</div>
+        <div class="ds-unit">รูปภาพ</div>
+        <div class="ds-bar"><div class="ds-bar-fill" style="width:${pct}%"></div></div>
+      `;
+      grid.appendChild(div);
+    }
+  } catch(e) {}
+}
+loadDatasetStats();
+setInterval(loadDatasetStats, 5000); // Auto-refresh every 5s
+
+// ─── Data Collection Canvas ──────────────────────────────────────────────────
+const cc = document.getElementById('collectCanvas2');
+const cctx = cc.getContext('2d');
+let ccDrawing = false, ccLX = 0, ccLY = 0;
+
+cctx.strokeStyle = '#1a1209';
+cctx.lineWidth = 14;
+cctx.lineCap = 'round';
+cctx.lineJoin = 'round';
+
+function ccPos(e) {
+  const r = cc.getBoundingClientRect();
+  const sx = cc.width / r.width, sy = cc.height / r.height;
+  if (e.touches) return { x: (e.touches[0].clientX-r.left)*sx, y: (e.touches[0].clientY-r.top)*sy };
+  return { x: (e.clientX-r.left)*sx, y: (e.clientY-r.top)*sy };
+}
+
+cc.addEventListener('mousedown', e => { ccDrawing=true; const p=ccPos(e); ccLX=p.x; ccLY=p.y; });
+cc.addEventListener('touchstart', e => { e.preventDefault(); ccDrawing=true; const p=ccPos(e); ccLX=p.x; ccLY=p.y; }, {passive:false});
+cc.addEventListener('mousemove', e => {
+  if (!ccDrawing) return;
+  const p = ccPos(e);
+  cctx.beginPath(); cctx.moveTo(ccLX, ccLY); cctx.lineTo(p.x, p.y); cctx.stroke();
+  ccLX=p.x; ccLY=p.y;
+});
+cc.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!ccDrawing) return;
+  const p = ccPos(e);
+  cctx.beginPath(); cctx.moveTo(ccLX, ccLY); cctx.lineTo(p.x, p.y); cctx.stroke();
+  ccLX=p.x; ccLY=p.y;
+}, {passive:false});
+cc.addEventListener('mouseup', () => ccDrawing=false);
+cc.addEventListener('touchend', () => ccDrawing=false);
+
+function clearCollect() {
+  cctx.clearRect(0, 0, cc.width, cc.height);
+  document.getElementById('collectMsg').textContent = '';
+}
+
+async function saveSample() {
+  const label = document.getElementById('classSelect').value;
+  const image = cc.toDataURL('image/png');
+
+  const pixelData = cctx.getImageData(0,0,cc.width,cc.height).data;
+  const hasContent = Array.from(pixelData).some((v,i) => i%4===3 && v>10);
+  if (!hasContent) {
+    document.getElementById('collectMsg').textContent = ' กรุณาวาดตัวเลขก่อน';
+    document.getElementById('collectMsg').style.color = '#dc2626';
+    return;
+  }
+
+  try {
+    const res = await fetch('/save-sample', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ image, label })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const msg = document.getElementById('collectMsg');
+      msg.textContent = ` บันทึก ${data.filename} (รวม ${data.count} รูป)`;
+      msg.style.color = '#16a34a';
+      clearCollect();
+      loadDatasetStats();
+    }
+  } catch(e) {
+    document.getElementById('collectMsg').textContent = ' บันทึกไม่สำเร็จ';
+  }
+}
+</script>
+</body>
+</html>
